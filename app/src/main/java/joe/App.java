@@ -18,7 +18,7 @@ public class App {
     public static void main(String[] args) {
         System.out.println(new App().getGreeting());
         String uri = "mongodb+srv://josbudney:ZbXSdrVMvBHnWRb7@bay-path.tkovhhw.mongodb.net/?retryWrites=true&w=majority";
-        try (MongoClient mongoClient = MongoClients.create(uri)) {
+        /* try (MongoClient mongoClient = MongoClients.create(uri)) {
             MongoDatabase database = mongoClient.getDatabase("sample_mflix");
             MongoCollection<Document> collection = database.getCollection("movies");
             Document doc = collection.find(eq("title", "Back to the Future")).first();
@@ -27,6 +27,11 @@ public class App {
             } else {
                 System.out.println("No matching documents found.");
             }
+        } */
+        try (MongoClient mongoClient = MongoClients.create(uri)) {
+            MongoDatabase database = mongoClient.getDatabase("sample_guides");
+            MongoCollection<Document> collection = database.getCollection("movies");
+            database.createCollection("astronauts");
         }
     }
 }
