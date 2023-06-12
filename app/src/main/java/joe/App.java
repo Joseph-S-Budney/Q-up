@@ -3,28 +3,30 @@
  */
 package joe;
 
+import javax.print.attribute.standard.DateTimeAtCreation;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Date;
+
 
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import static com.mongodb.client.model.Filters.eq;
 
 public class App extends JFrame {
     public String getGreeting() {
         return "Hello World!";}
-        private static JLabel directions_label=new JLabel("Enter your name here");
         private static JLabel outputlabel=new JLabel( );
-        private static JTextField nameBox=new JTextField(25);
-        private static JButton nameButton= new JButton("Save");
-        private static JLabel email_label=new JLabel("Enter your email here ");
-        private static JTextField emailBox=new JTextField(25);
+        private static JButton nameButton= new JButton("Send");
         private static JLabel questionLabel=new JLabel("Enter your question here");
-        private static JTextField questionBox=new JTextField(25);
+        private static JTextField messageField=new JTextField(25);
         private static JTextField chickmanAnswerBox=new JTextField(25);
         public static void buttonClicked(ActionEvent e){
             //JOptionPane.showMessageDialog(null,"Button Works","Hi",JOptionPane.INFORMATION_MESSAGE);
@@ -34,15 +36,21 @@ public class App extends JFrame {
                 3. output the something
     
              */
-            String yourName =nameBox.getText();
-            String yourEmail=emailBox.getText();
-            String yourQuestion=questionBox.getText();
-            String chickmenAnswer=chickmanAnswerBox.getText();
+            String uri = "mongodb+srv://josbudney:ZbXSdrVMvBHnWRb7@bay-path.tkovhhw.mongodb.net/?retryWrites=true&w=majority";
             String outputMessage="Thank you for the information";
-            outputlabel.setText(outputMessage);
-            JFrame frame = new JFrame();
+            Date myDate = new Date();
+            
+            
+            try (MongoClient mongoClient = MongoClients.create(uri)) {
+                MongoDatabase database = mongoClient.getDatabase("Q-Up");
+                MongoCollection<Document> collection = database.getCollection("messages");
+                Document message = new Document("_id", new ObjectId());
+                message.append("message", messageField.getText()).append("dateSent", myDate.toString()); 
+                collection.insertOne( message );
+                outputlabel.setText(messageField.getText());
+            }
       
-            String[] columnNames = new String[]{"Question","Answer"};
+            /*String[] columnNames = new String[]{"Question","Answer"};
            
             Object[][] data = new Object[9][2];
             for(int r=0;r<data.length;r++){
@@ -54,31 +62,30 @@ public class App extends JFrame {
                         data[r][c]=yourQuestion;
                     }
                 }
-            }
+            }*/
      
     
     
-            
+        }         
             
     
-          JTable table = new JTable(data, columnNames);
+         
     
-                JScrollPane scrollPane = new JScrollPane(table);
     // Force the scrollbars to always be displayed
     
-    scrollPane.setVerticalScrollBarPolicy(
+    /*scrollPane.setVerticalScrollBarPolicy(
         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
     frame.add(scrollPane);
          frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
          frame.setSize(400,400);
          frame.setLocationRelativeTo(null);  
          frame.setVisible(true);
-        }
+        }*/
     
 
     public static void main(String[] args) {
         System.out.println(new App().getGreeting());
-        String uri = "mongodb+srv://josbudney:ZbXSdrVMvBHnWRb7@bay-path.tkovhhw.mongodb.net/?retryWrites=true&w=majority";
+        
         /* try (MongoClient mongoClient = MongoClients.create(uri)) {
             MongoDatabase database = mongoClient.getDatabase("sample_mflix");
             MongoCollection<Document> collection = database.getCollection("movies");
@@ -89,21 +96,14 @@ public class App extends JFrame {
                 System.out.println("No matching documents found.");
             }
         } */
-        try (MongoClient mongoClient = MongoClients.create(uri)) {
-            MongoDatabase database = mongoClient.getDatabase("Q-Up");
-            MongoCollection<Document> collection = database.getCollection("messages");
-        }
+        
         App window = new App();
         window.setSize(500,200);
         window.setVisible(true);
         window.setTitle("My JFrame");
         window.setLayout(new FlowLayout());
-        window.getContentPane().add(directions_label);
-        window.getContentPane().add(nameBox); 
-        window.getContentPane().add(email_label);
-        window.getContentPane().add(emailBox);
         window.getContentPane().add(questionLabel);
-        window.getContentPane().add(questionBox);
+        window.getContentPane().add(messageField);
         window.getContentPane().add(new JLabel("    "));
         window.getContentPane().add(nameButton);
        
