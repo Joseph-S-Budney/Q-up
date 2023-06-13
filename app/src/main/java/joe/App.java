@@ -3,32 +3,48 @@
  */
 package joe;
 
-import javax.print.attribute.standard.DateTimeAtCreation;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Date;
 
-
-import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import org.bson.conversions.Bson;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import static com.mongodb.client.model.Filters.eq;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.MongoCursor;
 
 public class App extends JFrame {
-    public String getGreeting() {
-        return "Hello World!";}
         private static JLabel outputlabel=new JLabel( );
         private static JButton nameButton= new JButton("Send");
         private static JLabel questionLabel=new JLabel("Enter your question here");
         private static JTextField messageField=new JTextField(25);
-        private static JTextField chickmanAnswerBox=new JTextField(25);
+        private static String uri = "mongodb+srv://josbudney:ZbXSdrVMvBHnWRb7@bay-path.tkovhhw.mongodb.net/?retryWrites=true&w=majority";
+
+        String outputMessage="Thank you for the information";
+       
+       
+        
+        public static void onRun() {
+
+        }
+
         public static void buttonClicked(ActionEvent e){
+
+            try (MongoClient mongoClient = MongoClients.create(uri)) {
+                MongoDatabase database = mongoClient.getDatabase("Q-Up");
+                MongoCollection<Document> collection = database.getCollection("messages");
+                Document message = new Document("_id", new ObjectId());
+                message.append("message", messageField.getText()).append("dateSent", new Date().toString()); 
+                collection.insertOne( message );
+                outputlabel.setText(messageField.getText());
+            }
+
             //JOptionPane.showMessageDialog(null,"Button Works","Hi",JOptionPane.INFORMATION_MESSAGE);
             /*
                 1. Strip from the screen objects
@@ -36,19 +52,6 @@ public class App extends JFrame {
                 3. output the something
     
              */
-            String uri = "mongodb+srv://josbudney:ZbXSdrVMvBHnWRb7@bay-path.tkovhhw.mongodb.net/?retryWrites=true&w=majority";
-            String outputMessage="Thank you for the information";
-            Date myDate = new Date();
-            
-            
-            try (MongoClient mongoClient = MongoClients.create(uri)) {
-                MongoDatabase database = mongoClient.getDatabase("Q-Up");
-                MongoCollection<Document> collection = database.getCollection("messages");
-                Document message = new Document("_id", new ObjectId());
-                message.append("message", messageField.getText()).append("dateSent", myDate.toString()); 
-                collection.insertOne( message );
-                outputlabel.setText(messageField.getText());
-            }
       
             /*String[] columnNames = new String[]{"Question","Answer"};
            
@@ -67,8 +70,6 @@ public class App extends JFrame {
     
     
         }         
-            
-    
          
     
     // Force the scrollbars to always be displayed
@@ -82,9 +83,7 @@ public class App extends JFrame {
          frame.setVisible(true);
         }*/
     
-
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
         
         /* try (MongoClient mongoClient = MongoClients.create(uri)) {
             MongoDatabase database = mongoClient.getDatabase("sample_mflix");
@@ -96,12 +95,27 @@ public class App extends JFrame {
                 System.out.println("No matching documents found.");
             }
         } */
-        
         App window = new App();
-        window.setSize(500,200);
+        window.setSize(1000,500);
         window.setVisible(true);
         window.setTitle("My JFrame");
         window.setLayout(new FlowLayout());
+        try (MongoClient mongoClient = MongoClients.create(uri)) {
+            MongoDatabase database = mongoClient.getDatabase("Q-Up");
+            MongoCollection<Document> collection = database.getCollection("messages");
+            Bson projectionFields = Projections.fields(
+                Projections.include("message"),
+                Projections.excludeId());
+            MongoCursor<Document> cursor = collection.find()
+                .projection(projectionFields).iterator();
+            try{
+                while(cursor.hasNext()){
+                    window.getContentPane().add(new JLabel(cursor.next().toJson()));
+                }
+            } finally {
+                cursor.close();
+            } 
+        }
         window.getContentPane().add(questionLabel);
         window.getContentPane().add(messageField);
         window.getContentPane().add(new JLabel("    "));
