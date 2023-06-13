@@ -34,3 +34,10 @@ tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+launch4j {
+    headerType="gui"
+    mainClassName = <App>
+    outfile = "Q-Up.exe"
+
+}
