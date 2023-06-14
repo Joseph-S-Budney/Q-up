@@ -29,77 +29,37 @@ public class App extends JFrame {
         String outputMessage="Thank you for the information";
        
        
-        
-        public static void onRun() {
-
-        }
 
         public static void buttonClicked(ActionEvent e){
 
             try (MongoClient mongoClient = MongoClients.create(uri)) {
                 MongoDatabase database = mongoClient.getDatabase("Q-Up");
                 MongoCollection<Document> collection = database.getCollection("messages");
-                Document message = new Document("_id", new ObjectId());
-                message.append("message", messageField.getText()).append("dateSent", new Date().toString()); 
-                collection.insertOne( message );
-                outputlabel.setText(messageField.getText());
+                Message message = new Message(messageField.getText());
+                collection.insertOne( message.getDocument() );
             }
-
-            //JOptionPane.showMessageDialog(null,"Button Works","Hi",JOptionPane.INFORMATION_MESSAGE);
-            /*
-                1. Strip from the screen objects
-                2. do something with the data from the screen
-                3. output the something
-    
-             */
-      
-            /*String[] columnNames = new String[]{"Question","Answer"};
-           
-            Object[][] data = new Object[9][2];
-            for(int r=0;r<data.length;r++){
-                for(int c=0;c<data[r].length;c++){
-                    if(c==1){
-                        data[r][c]=chickmenAnswer;
-                    }
-                    else{
-                        data[r][c]=yourQuestion;
-                    }
-                }
-            }*/
-     
-    
     
         }         
          
-    
-    // Force the scrollbars to always be displayed
-    
-    /*scrollPane.setVerticalScrollBarPolicy(
-        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  
-    frame.add(scrollPane);
-         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-         frame.setSize(400,400);
-         frame.setLocationRelativeTo(null);  
-         frame.setVisible(true);
-        }*/
-    
     public static void main(String[] args) {
         
-        /* try (MongoClient mongoClient = MongoClients.create(uri)) {
-            MongoDatabase database = mongoClient.getDatabase("sample_mflix");
-            MongoCollection<Document> collection = database.getCollection("movies");
-            Document doc = collection.find(eq("title", "Back to the Future")).first();
-            if (doc != null) {
-                System.out.println(doc.toJson());
-            } else {
-                System.out.println("No matching documents found.");
-            }
-        } */
         App window = new App();
         window.setSize(1000,500);
         window.setVisible(true);
         window.setTitle("My JFrame");
         window.setLayout(new FlowLayout());
+
+        window.getContentPane().add(questionLabel);
+        window.getContentPane().add(messageField);
+        window.getContentPane().add(new JLabel("    "));
+        window.getContentPane().add(nameButton);
+       
+        window.getContentPane().add(outputlabel);
+        nameButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                buttonClicked(e);
+            }
+        });
         try (MongoClient mongoClient = MongoClients.create(uri)) {
             MongoDatabase database = mongoClient.getDatabase("Q-Up");
             MongoCollection<Document> collection = database.getCollection("messages");
@@ -116,18 +76,6 @@ public class App extends JFrame {
                 cursor.close();
             } 
         }
-        window.getContentPane().add(questionLabel);
-        window.getContentPane().add(messageField);
-        window.getContentPane().add(new JLabel("    "));
-        window.getContentPane().add(nameButton);
-       
-        window.getContentPane().add(outputlabel);
-        nameButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-                buttonClicked(e);
-            }
-        });
-        
     
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }

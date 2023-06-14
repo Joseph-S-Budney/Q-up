@@ -10,16 +10,21 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
 }
+
+java {
+    withSourcesJar()
+}
+
+javadoc {
+    classpath += project.sourceSets.test.compileClasspath
+    source += project.sourceSets.test.allJava
+    destinationDir = file("${rootDir}/docs/")
+}
 version = 'v0.1.0'
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
 }
 
 dependencies {
@@ -47,23 +52,4 @@ tasks.named('jar') {
                    'Implementation-Version': project.version)
     }
     archivesBaseName = project.name
-    destinationDirectory = file("${rootDir}/dist/")
-}
-
-tasks.named('sourcesJar') {
-    manifest {
-        attributes('Implementation-Title': project.name,
-                   'Implementation-Version': project.version)
-    }
-    archivesBaseName = project.name
-    destinationDirectory = file("${rootDir}/dist/")
-}
-
-tasks.named('javadocJar') {
-    manifest {
-        attributes('Implementation-Title': project.name,
-                   'Implementation-Version': project.version)
-    }
-    archivesBaseName = project.name
-    destinationDirectory = file("${rootDir}/dist/")
 }
