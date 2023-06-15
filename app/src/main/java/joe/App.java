@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Date;
+import org.json.simple.JSONObject;    
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -63,18 +64,18 @@ public class App extends JFrame {
         try (MongoClient mongoClient = MongoClients.create(uri)) {
             MongoDatabase database = mongoClient.getDatabase("Q-Up");
             MongoCollection<Document> collection = database.getCollection("messages");
-            Bson projectionFields = Projections.fields(
-                Projections.include("message"),
-                Projections.excludeId());
-            MongoCursor<Document> cursor = collection.find()
-                .projection(projectionFields).iterator();
-            try{
-                while(cursor.hasNext()){
-                    window.getContentPane().add(new JLabel(cursor.next().toJson()));
-                }
-            } finally {
-                cursor.close();
-            } 
+            System.out.println(collection.distinct("message", String.class).toString());
+            //Bson projectionFields = Projections.fields(
+            //    Projections.include("_id"));
+            //MongoCursor<Document> cursor = collection.find()
+            //    .projection(projectionFields).iterator();
+            //try {
+            //    while(cursor.hasNext()) {
+            //        System.out.println(cursor.next().toJson());
+            //    }
+            //} finally {
+            //    cursor.close();
+            //  }
         }
     
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
